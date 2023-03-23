@@ -1,6 +1,8 @@
 notion-client
-diffusers
+#diffusers
 gradio
 openai
-#langchain
-langchain[all]
+#langchain==0.0.112
+#langchain[all]
+langchain==0.0.117
+google-api-python-client
