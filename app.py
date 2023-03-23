@@ -4,14 +4,14 @@ import re
 from langchain.agents.initialize import initialize_agent
 from langchain.agents.tools import Tool
 from langchain.chains.conversation.memory import ConversationBufferMemory
-# from langchain.utilities import GoogleSearchAPIWrapper
+from langchain.utilities import GoogleSearchAPIWrapper
 from langchain.llms.openai import OpenAI
 import gradio as gr
 from notion_client import Client
 
 
 notion = Client(auth=os.environ['NOTION_TOKEN'])
-# search = GoogleSearchAPIWrapper()
+search = GoogleSearchAPIWrapper()
 
 
 def cut_dialogue_history(history_memory, keep_last_n_words=500):
@@ -105,14 +105,19 @@ class ConversationBot:
             Tool(
                 name="Get User Profile",
                 func=self.getuserprofile.inference,
-                description="useful when you want to tell about specific name. "),
+                description="useful when you want to tell about specific person. "),
             Tool(
                 name="Get Product Information",
                 func=self.getproductinfo.inference,
-                description="useful when you want to tell about specific product like apple or pencil. "),            # Tool(
-            #     name = "Current Search",
-            #     func=search.run,
-            #     description="useful for when you need to answer questions about current events or the current state of the world"),
+                description="useful when you want to tell about specific product like apple or pencil. "),
+            Tool(
+                name="Current Search",
+                func=search.run,
+                description="useful for when you need to answer questions about current events or the current state of the world"),
+            # Tool(
+            #     name="Send Slack",
+            #     func=zapier.run,
+            #     description="useful for when you want to send a message in slack"),
                     ]
         self.agent = initialize_agent(
             self.tools,
@@ -137,7 +142,7 @@ class ConversationBot:
 if __name__ == '__main__':
     bot = ConversationBot()
     with gr.Blocks(css="#chatbot .overflow-y-auto{height:500px}") as demo:
-        chatbot = gr.Chatbot(elem_id="chatbot", label="Ask ChatGPT")
+        chatbot = gr.Chatbot(elem_id="chatbot", label="DB integrated ChatGPT")
         state = gr.State([])
         with gr.Row():
             with gr.Column(scale=0.8):
